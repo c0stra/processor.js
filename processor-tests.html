@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unit tests</title>
+    <script type="text/javascript" src="processor.js" language="JavaScript"></script>
+    <script type="text/javascript" src="harness.js" language="JavaScript"></script>
+    <script type="text/javascript" language="JavaScript">
+
+        function test1() {
+            var nodeNames = [];
+            processChildrenOf(document.getElementById('data'), function(name, node, output) {
+                output.push(name);
+            }, nodeNames);
+            assert(nodeNames, nodeNames.length == 5, "has 5 items");
+        }
+
+        function test2() {
+            var nodeNames = [];
+            processChildrenOf(document.getElementById('data'), rules({
+                'ITEM': function(item, output) {
+                    output.push("ITEM");
+                },
+                '#text': ignore
+            }, function(node, output) {
+                output.push("default-" + node.nodeName);
+            }), nodeNames);
+            assert(nodeNames, nodeNames.length == 2 && nodeNames[0] == "ITEM" && nodeNames[1] == "default-GROUP", "has 2 items ['ITEM', 'default-GROUP']");
+        }
+
+        function test3() {
+            processNode(document.getElementById('data'), rules({
+            }), []);
+        }
+
+        window.onload = function() {
+
+            table(run(test1, test2, test3));
+
+        }
+
+    </script>
+</head>
+<body id="out">
+
+</body>
+<data id="data">
+    <item></item>
+    <group>
+        <item></item>
+    </group>
+</data>
+</html>
