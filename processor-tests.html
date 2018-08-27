@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Unit tests</title>
+    <style type="text/css">
+        tr.PASSED {background-color: #D0FFD0; border-top: 1px solid black;}
+        tr.FAILED {background-color: #FFD0D0; border-top: 1px solid black;}
+        td, th {text-align: left; padding: 0.2em;}
+        td.stack {white-space: pre; background-color: #FFE0E0;}
+    </style>
     <script type="text/javascript" src="processor.js" language="JavaScript"></script>
-    <script type="text/javascript" src="harness.js" language="JavaScript"></script>
+    <script type="text/javascript" src="runner.js" language="JavaScript"></script>
     <script type="text/javascript" language="JavaScript">
 
         function test1() {
@@ -22,7 +28,7 @@
                     output.push("ITEM");
                 },
                 '#text': ignore
-            }, function(node, output) {
+            }, function(node, processor, output) {
                 output.push("default-" + node.nodeName);
             }), nodeNames);
             assert(nodeNames, nodeNames.length == 2 && nodeNames[0] == "ITEM" && nodeNames[1] == "default-GROUP", "has 2 items ['ITEM', 'default-GROUP']");
@@ -33,16 +39,29 @@
             }), []);
         }
 
-        window.onload = function() {
-
-            table(run(test1, test2, test3));
-
+        function test4() {
+            var nodes = [];
+            processFieldsOf({
+                item1: 1,
+                item2: {
+                    item3: 2
+                }
+            }, rules({
+                item1: function(value, output) {output.push(name + value);},
+                item3: function(value, output) {output.push(name + value);}
+            }, processFieldsOf), nodes);
+            assert(nodes, nodes.length == 2, "has 2 items");
         }
+
+        window.onload = run(test1, test2, test3, test4);
 
     </script>
 </head>
-<body id="out">
-
+<body>
+<h1>Processor unit tests</h1>
+<table width="90%" id="results">
+    <tr><th width="70%">Test name</th><th>Result</th></tr>
+</table>
 </body>
 <data id="data">
     <item></item>

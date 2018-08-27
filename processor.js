@@ -32,7 +32,7 @@
  * Process a DOM node using provided processor.
  *
  * @param node Node to be processed.
- * @param processor Node processor.
+ * @param processor Node processor. It accepts 2 arguments: function processor(node, optional output)
  * @param output Output context.
  */
 function processNode(node, processor, output) {
@@ -87,12 +87,15 @@ function processAttributesOf(node, processor, output) {
  * @param default processor, if there is no mapping for the element.
  */
 function rules(dictionary, defaultProcessor) {
+    if(!defaultProcessor) {
+        defaultProcessor = ignore;
+    }
     function processor(name, node, output) {
-        var nodeProcessor = dictionary[name] || defaultProcessor;
+        var nodeProcessor = dictionary[name];
         if(nodeProcessor) {
             nodeProcessor(node, output);
         } else {
-            processChildrenOf(node, processor, output);
+            defaultProcessor(node, processor, output);
         }
     }
     return processor;
@@ -102,7 +105,7 @@ function rules(dictionary, defaultProcessor) {
 /**
  * Simple rule to ignore any further processing.
  */
-function ignore(node, output) {
+function ignore() {
 }
 
 
@@ -110,7 +113,7 @@ function ignore(node, output) {
  * Process all fields of provided object using supplied processor.
  *
  * @param node Node, whose attribute should be processed.
- * @param processor Node processor.
+ * @param processor Node processor accepting 3 parameters: function processor(fieldName, value, optional output)
  * @param output Output context.
  */
 function processFieldsOf(object, processor, output) {
